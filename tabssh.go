@@ -8,13 +8,19 @@ import (
 	"log"
 )
 
+var i int
+
 func eval(expr string) string {
-	err := ioutil.WriteFile("/Users/osnr/t/tabs/last-focused/evals/eval.js", []byte(expr), 0755)
+	// FIXME: these need to be unique across runs
+	// (or just fix the truncate bug, whatever it is)
+	evalpath := fmt.Sprintf("/Users/osnr/t/tabs/last-focused/evals/eval%d.js", i)
+	err := ioutil.WriteFile(evalpath, []byte(expr), 0755)
+	i = i + 1
 	if err != nil {
 		fmt.Printf("Unable to write file: %v", err)
 	}
 
-	dat, err := ioutil.ReadFile("/Users/osnr/t/tabs/last-focused/evals/eval.js.result")
+	dat, err := ioutil.ReadFile(evalpath + ".result")
 	fmt.Printf("[%s]", dat)
 	return string(dat)
 }
@@ -28,8 +34,9 @@ func url() string {
 func main() {
 	ssh.Handle(func(s ssh.Session) {
 		for {
+			io.WriteString(s, "\u001b[32m")
 			io.WriteString(s, url())
-			io.WriteString(s, "> ")
+			io.WriteString(s, "\u001b[0m> ")
 
 			line := ""
 			for {
@@ -43,6 +50,10 @@ func main() {
 				if ch[0] == byte('\r') {
 					s.Write([]byte{'\n'})
 					break
+				}
+				// FIXME: this doesn't work
+				if ch[0] == byte('\b') {
+					line = line[:len(line)-1]
 				}
 			}
 			fmt.Printf("Read")
