@@ -8,9 +8,27 @@ import (
 	"log"
 )
 
+func eval(expr string) string {
+	err := ioutil.WriteFile("/Users/osnr/t/tabs/last-focused/evals/eval.js", []byte(expr), 0755)
+	if err != nil {
+		fmt.Printf("Unable to write file: %v", err)
+	}
+
+	dat, err := ioutil.ReadFile("/Users/osnr/t/tabs/last-focused/evals/eval.js.result")
+	fmt.Printf("[%s]", dat)
+	return string(dat)
+}
+
+func url() string {
+	url, err := ioutil.ReadFile("/Users/osnr/t/tabs/last-focused/url.txt")
+	_ = err
+	return string(url[:len(url)-1])
+}
+
 func main() {
 	ssh.Handle(func(s ssh.Session) {
 		for {
+			io.WriteString(s, url())
 			io.WriteString(s, "> ")
 
 			line := ""
@@ -28,15 +46,7 @@ func main() {
 				}
 			}
 			fmt.Printf("Read")
-
-			err := ioutil.WriteFile("/Users/osnr/t/tabs/last-focused/evals/eval.js", []byte(line), 0755)
-			if err != nil {
-				fmt.Printf("Unable to write file: %v", err)
-			}
-
-			dat, err := ioutil.ReadFile("/Users/osnr/t/tabs/last-focused/evals/eval.js.result")
-			fmt.Printf("[%s]", dat)
-			io.WriteString(s, string(dat))
+			io.WriteString(s, string(eval(line)))
 		}
 	})
 
