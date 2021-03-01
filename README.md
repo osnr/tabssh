@@ -3,7 +3,7 @@
 [idk](https://twitter.com/rsnous/status/1365106287080472579)
 
 Uses [TabFS](https://github.com/osnr/TabFS) and
-[gilderlabs/ssh](https://twitter.com/jf/status/1352012743600062465).
+[gilderlabs/ssh](https://github.com/gliderlabs/ssh).
 
 Set your TabFS mount path in `tabssh.go`.
 
